@@ -1,19 +1,27 @@
+import sys
+import tensorflow as tf
+
+# 1st option
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 import pandas as pd
 import os
 from PIL import Image
 import numpy as np
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping, ReduceLROnPlateau, TensorBoard
-from keras import optimizers, losses, activations, models
-from keras.layers import Convolution2D, Dense, Input, Flatten, Dropout, MaxPooling2D, BatchNormalization, \
+from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping, ReduceLROnPlateau, TensorBoard
+from tensorflow.keras import optimizers, losses, activations, models
+from tensorflow.keras.layers import Convolution2D, Dense, Input, Flatten, Dropout, MaxPooling2D, BatchNormalization, \
     GlobalMaxPool2D, Concatenate, GlobalMaxPooling2D, GlobalAveragePooling2D, Lambda
-from keras.applications.resnet50 import ResNet50
-from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Model
+from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.models import Model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from keras import backend as K
+from tensorflow.keras import backend as K
 
 from tqdm import tqdm
+from collections import Counter
 
 
 def read_and_resize(filepath, input_shape=(256, 256)):
@@ -86,7 +94,7 @@ def filter_df(df):
     return df
 
 if __name__ == "__main__":
-    base_path = "/media/ml/data_ml/face_age_gender/"
+    base_path = "./dataset/"
 
     bag = 3
 
@@ -132,7 +140,7 @@ if __name__ == "__main__":
             callbacks_list = [checkpoint, early, reduce_on_plateau]  # early
 
             model = get_model(n_classes=1)
-            model.fit_generator(gen(tr_tr, aug=True), validation_data=gen(tr_val), epochs=200, verbose=2, workers=4,
+            model.fit_generator(gen(tr_tr, aug=True), validation_data=gen(tr_val), epochs=200, verbose=2,
                            callbacks=callbacks_list, steps_per_epoch=50, validation_steps=30)
 
             model.load_weights(file_path)
